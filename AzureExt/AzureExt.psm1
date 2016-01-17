@@ -81,14 +81,22 @@ function New-AzureExtVMSession
     Process
     {
         $vm = Get-AzureVM $ServiceName $Name
-        $vmCertHash = $vm.VM.DefaultWinRmCertificateThumbprint
+        $remoteCertHash = $vm.VM.DefaultWinRmCertificateThumbprint
 
-        $localCert = Get-ChildItem "Cert:\CurrentUser\Root" | Where-Object -Property Thumbprint -eq $vmCertHash
+        $localCert = Get-ChildItem "Cert:\CurrentUser\Root" | Where-Object -Property Thumbprint -eq $remoteCertHash
         if (!$localCert)
         {
-            $vm.VM.WinRMCertificate | Out-File "$env:TEMP\winrm.cert"
-            Import-Certificate -Filepath "$env:TEMP\winrm.cert" -CertStoreLocation 'Cert:\CurrentUser\Root'
-            Remove-Item "$env:TEMP\winrm.cert"
+            $remoteCert = Get-AzureCertificate -ServiceName $ServiceName -Thumbprint $remoteCertHash -ThumbprintAlgorithm "SHA1"
+            if ($remoteCert)
+            {
+                $remoteCert.Data | Out-File "$env:TEMP\winrm.cert"
+                Import-Certificate -Filepath "$env:TEMP\winrm.cert" -CertStoreLocation 'Cert:\CurrentUser\Root'
+                Remove-Item "$env:TEMP\winrm.cert"
+            }
+            else
+            {
+                throw "Unable to import the certificate of the remote Azure VM."
+            }
         }
 
         $uri = Get-AzureWinRMUri -ServiceName $ServiceName -Name $Name
