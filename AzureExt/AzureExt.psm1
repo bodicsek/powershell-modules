@@ -90,8 +90,8 @@ function New-AzureExtVMSession
             if ($remoteCert)
             {
                 $remoteCert.Data | Out-File "$env:TEMP\winrm.cert"
-                Import-Certificate -Filepath "$env:TEMP\winrm.cert" -CertStoreLocation 'Cert:\CurrentUser\Root'
-                Remove-Item "$env:TEMP\winrm.cert"
+                Import-Certificate -Filepath "$env:TEMP\winrm.cert" -CertStoreLocation 'Cert:\CurrentUser\Root' | Out-Null
+                Remove-Item "$env:TEMP\winrm.cert" | Out-Null
             }
             else
             {
@@ -102,7 +102,7 @@ function New-AzureExtVMSession
         $uri = Get-AzureWinRMUri -ServiceName $ServiceName -Name $Name
         $cred = Get-Credential -UserName $UserName -Message "Administrator credentials for VM $ServiceName/$Name"
 
-        return New-PSSession $uri -Credential $cred
+        New-PSSession $uri -Credential $cred
     }
     End
     {
