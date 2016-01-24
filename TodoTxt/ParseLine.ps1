@@ -98,14 +98,14 @@ function ParseTodoTxtLinePriority ($line)
 
 function ParseTodoTxtLineCreationDate ($line)
 {
-    $creationDateAtStart = GetAllRegexCaptureOccurances '^([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])' $line | select -First 1
+    $creationDateAtStart = GetAllRegexCaptureOccurances '^(\d{4}-\d{2}-\d{2})' $line | select -First 1
     if ($creationDateAtStart)
     {
         [DateTime]$creationDateAtStart
     }
     else
     {
-        $creationDateAfterPrio = GetAllRegexCaptureOccurances '^\([A-Z]\) ([0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])' $line | select -First 1
+        $creationDateAfterPrio = GetAllRegexCaptureOccurances '^\([A-Z]\) (\d{4}-\d{2}-\d{2})' $line | select -First 1
         if ($creationDateAfterPrio)
         {
             [DateTime]$creationDateAfterPrio
@@ -119,12 +119,12 @@ function ParseTodoTxtLineCreationDate ($line)
 
 function ParseTodoTxtLineContext ($line)
 {
-    GetAllRegexCaptureOccurances '@([A-Za-z]+)' $line
+    GetAllRegexCaptureOccurances '@(\S+)' $line
 }
 
 function ParseTodoTxtLineProject ($line)
 {
-    GetAllRegexCaptureOccurances '\+([A-Za-z]+)' $line
+    GetAllRegexCaptureOccurances '\+(\S+)' $line
 }
 
 function GetAllRegexCaptureOccurances($regexWithCapture, $line)
