@@ -19,7 +19,7 @@ Describe "Import-TodoTxtFile" {
             $emptyFile = ".\todo.txt"
             Set-Content $emptyFile -Value ""
 
-            It "returns $null" {
+            It "returns `$null" {
                 $result = Import-TodoTxtFile $emptyFile
                 $result | Should BeNullOrEmpty
             }
@@ -38,6 +38,13 @@ Describe "Import-TodoTxtFile" {
 
                 ($todos | measure | select -ExpandProperty Count) |
                     Should Be 2
+            }
+
+            It "adds unique ids to the todo objects" {
+                $todos = Import-TodoTxtFile $todoTxtFile
+
+                $todos[0].Id | Should Be 0
+                $todos[1].Id | Should Be 1
             }
         }
     }

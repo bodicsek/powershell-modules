@@ -32,9 +32,9 @@ function Import-TodoTxtFile
     Process
     {
         $lines = Get-Content $File | where Length -gt 0
-        foreach ($line in $lines)
+        for ($i = 0; $i -lt $lines.Length; $i++)
         {
-            Import-TodoTxtLine $line
+            Import-TodoTxtLine $lines[$i] | Add-Member -NotePropertyName Id -NotePropertyValue $i -PassThru
         }
     }
     End
