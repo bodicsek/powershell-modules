@@ -69,7 +69,61 @@ function Import-TodoTxtLine
     )
 
     Begin
-    {}
+    {
+        function ParseTodoTxtLinePriority ($line)
+        {
+            $stringValue = GetAllRegexCaptureOccurances '^\(([A-Z])\)' $line | select -First 1
+            if ($stringValue)
+            {
+                [System.Enum]::Parse([type]"Priority", $stringValue)
+            }
+            else
+            {
+                [Priority]::Undefined
+            }
+        }
+
+        function ParseTodoTxtLineCreationDate ($line)
+        {
+            $creationDateAtStart = GetAllRegexCaptureOccurances '^(\d{4}-\d{2}-\d{2})' $line | select -First 1
+            if ($creationDateAtStart)
+            {
+                [DateTime]$creationDateAtStart
+            }
+            else
+            {
+                $creationDateAfterPrio = GetAllRegexCaptureOccurances '^\([A-Z]\) (\d{4}-\d{2}-\d{2})' $line | select -First 1
+                if ($creationDateAfterPrio)
+                {
+                    [DateTime]$creationDateAfterPrio
+                }
+                else
+                {
+                    $null
+                }
+            }
+        }
+
+        function ParseTodoTxtLineContext ($line)
+        {
+            GetAllRegexCaptureOccurances '@(\S+)' $line
+        }
+
+        function ParseTodoTxtLineProject ($line)
+        {
+            GetAllRegexCaptureOccurances '\+(\S+)' $line
+        }
+
+        function GetAllRegexCaptureOccurances($regexWithCapture, $line)
+        {
+            $matches = Select-String $regexWithCapture -InputObject $line -AllMatches |
+                    select -ExpandProperty Matches
+            foreach ($match in $matches)
+            {
+                $match.Groups[1].Value
+            }
+        }
+    }
     Process
     {
         New-Object psobject -Property @{
@@ -156,56 +210,3 @@ function Export-TodoTxtItem
     }
 }
 
-function ParseTodoTxtLinePriority ($line)
-{
-    $stringValue = GetAllRegexCaptureOccurances '^\(([A-Z])\)' $line | select -First 1
-    if ($stringValue)
-    {
-        [System.Enum]::Parse([type]"Priority", $stringValue)
-    }
-    else
-    {
-        [Priority]::Undefined
-    }
-}
-
-function ParseTodoTxtLineCreationDate ($line)
-{
-    $creationDateAtStart = GetAllRegexCaptureOccurances '^(\d{4}-\d{2}-\d{2})' $line | select -First 1
-    if ($creationDateAtStart)
-    {
-        [DateTime]$creationDateAtStart
-    }
-    else
-    {
-        $creationDateAfterPrio = GetAllRegexCaptureOccurances '^\([A-Z]\) (\d{4}-\d{2}-\d{2})' $line | select -First 1
-        if ($creationDateAfterPrio)
-        {
-            [DateTime]$creationDateAfterPrio
-        }
-        else
-        {
-            $null
-        }
-    }
-}
-
-function ParseTodoTxtLineContext ($line)
-{
-    GetAllRegexCaptureOccurances '@(\S+)' $line
-}
-
-function ParseTodoTxtLineProject ($line)
-{
-    GetAllRegexCaptureOccurances '\+(\S+)' $line
-}
-
-function GetAllRegexCaptureOccurances($regexWithCapture, $line)
-{
-    $matches = Select-String $regexWithCapture -InputObject $line -AllMatches |
-               select -ExpandProperty Matches
-    foreach ($match in $matches)
-    {
-        $match.Groups[1].Value
-    }
-}
