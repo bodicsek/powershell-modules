@@ -4,6 +4,33 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 
 Describe "Show-TodoTxt" {
 
+    Context "when the todo items are unordered" {
+
+        In $TestDrive {
+
+            $todoTxtFile = ".\todo.txt"
+            Set-Content $todoTxtFile -Value "(C) todo1 @home +hobby"
+            Add-Content $todoTxtFile -Value "simple"
+            Add-Content $todoTxtFile -Value "(B) 2016-01-01 todo2 @office +projectA"
+            Add-Content $todoTxtFile -Value "(A) todo3 @phone"
+
+            It "the ouput is ordered by priority" {
+                $output = New-Object -TypeName System.Collections.ArrayList
+                Mock Write-Host {
+                    $a = [ref]$output
+                    $a.Value.Add($object)
+                }.GetNewClosure()
+
+                Show-TodoTxt -File $todoTxtFile
+
+                $output[0] | Should Match "(A)"
+                $output[1] | Should Match "(B)"
+                $output[2] | Should Match "(C)"
+                $output[3] | Should Match "simple"
+            }
+        }
+    }
+
     Context "when the default color map is used" {
 
         Mock Write-Host {}

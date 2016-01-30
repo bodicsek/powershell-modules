@@ -62,3 +62,79 @@ Describe "Import-TodoTxtLine" {
     }
 }
 
+Describe "Export-TodoTxtItem" {
+
+    Context "when there is no recognized todo object property" {
+
+        It "returns `$null" {
+            $todoItem = New-Object psobject
+
+            $lineToWrite = Export-TodoTxtItem $todoItem
+
+            $lineToWrite | Should Be $null
+        }
+    }
+
+    Context "when Priority is undefined and CreationDate is not present" {
+
+        It "returns the Text property only" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "test item";
+                Priority = [Priority]::Undefined;
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem
+
+            $lineToWrite | Should Be "test item"
+        }
+
+    }
+
+    Context "when Priority is defined but there is no CreationDate" {
+
+        It "returns '(Priority) Text'" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "test item";
+                Priority = [Priority]::A;
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem
+
+            $lineToWrite | Should Be "(A) test item"
+        }
+
+    }
+
+    Context "when Priority and CreationDate are present" {
+
+        It "returns '(Priority) CreationDate Text'" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "test item";
+                Priority = [Priority]::A;
+                CreationDate = [datetime]"2016-01-01";
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem
+
+            $lineToWrite | Should Be "(A) 2016-01-01 test item"
+        }
+
+    }
+
+    Context "when the -Archive parameter is present" {
+
+        It "return 'x DateTime.Now (Priority) CreationDate Text'" {
+            $today = "{0:yyyy-MM-dd}" -f [datetime]::Now
+            $todoItem = New-Object psobject -Property @{
+                Text = "test item";
+                Priority = [Priority]::A;
+                CreationDate = [datetime]"2016-01-01";
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem -Archive
+
+            $lineToWrite | Should Be "x $today (A) 2016-01-01 test item"
+        }
+
+    }
+}
