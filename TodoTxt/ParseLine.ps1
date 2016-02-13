@@ -45,7 +45,7 @@
     Project       string[]  Every +project reference
     Text          string    The full todo.txt line
 .EXAMPLE
-    Import-TodoTxtLine "(A) Feed the cat @home +Cat"
+    Import-TodoTxtItem "(A) Feed the cat @home +Cat"
 
     It returns an object:
     Priority     : A
@@ -54,7 +54,7 @@
     Text         : (A) Feed the cat @home +Cat
     CreationDate : 1/1/0001 12:00:00 AM
 #>
-function Import-TodoTxtLine
+function Import-TodoTxtItem
 {
     [CmdletBinding()]
     [OutputType([psobject])]
@@ -70,7 +70,7 @@ function Import-TodoTxtLine
 
     Begin
     {
-        function ParseTodoTxtLinePriority ($line)
+        function ParseTodoTxtItemPriority ($line)
         {
             $stringValue = GetAllRegexCaptureOccurances '^\(([A-Z])\)' $line | select -First 1
             if ($stringValue)
@@ -83,7 +83,7 @@ function Import-TodoTxtLine
             }
         }
 
-        function ParseTodoTxtLineCreationDate ($line)
+        function ParseTodoTxtItemCreationDate ($line)
         {
             $creationDateAtStart = GetAllRegexCaptureOccurances '^(\d{4}-\d{2}-\d{2})' $line | select -First 1
             if ($creationDateAtStart)
@@ -104,12 +104,12 @@ function Import-TodoTxtLine
             }
         }
 
-        function ParseTodoTxtLineContext ($line)
+        function ParseTodoTxtItemContext ($line)
         {
             GetAllRegexCaptureOccurances '@(\S+)' $line
         }
 
-        function ParseTodoTxtLineProject ($line)
+        function ParseTodoTxtItemProject ($line)
         {
             GetAllRegexCaptureOccurances '\+(\S+)' $line
         }
@@ -128,10 +128,10 @@ function Import-TodoTxtLine
     {
         New-Object psobject -Property @{
             Text = $Line;
-            Priority = ParseTodoTxtLinePriority $Line;
-            CreationDate = ParseTodoTxtLineCreationDate $Line;
-            Context = ParseTodoTxtLineContext $Line;
-            Project = ParseTodoTxtLineProject $Line;
+            Priority = ParseTodoTxtItemPriority $Line;
+            CreationDate = ParseTodoTxtItemCreationDate $Line;
+            Context = ParseTodoTxtItemContext $Line;
+            Project = ParseTodoTxtItemProject $Line;
         }
     }
     End
