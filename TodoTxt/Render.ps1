@@ -1,5 +1,5 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-. "$here\ParseFile.ps1"
+. "$here\File.ps1"
 
 <#
 .Synopsis
