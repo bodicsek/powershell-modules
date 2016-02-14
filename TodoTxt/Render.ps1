@@ -17,11 +17,11 @@ function Show-TodoTxt
     Param
     (
         # The full path of the todo.txt file.
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [string]
-        $File,
+        $File = $script:File,
 
         # The priority -> foreground color map
         [Parameter(Mandatory=$false)]

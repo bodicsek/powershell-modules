@@ -1,5 +1,6 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 . "$here\ParseLine.ps1"
+. "$here\ParseFile.ps1"
 
 <#
 .SYNOPSIS
@@ -56,6 +57,20 @@ function New-TodoTxtItem {
     }
 
     Process {
+        $newItem = Import-TodoTxtItem $Text
+        if ($Priority) {
+            $newItem.Priority = $Priority
+        }
+        if ($Context) {
+            $newItem.Context = $Context
+        }
+        if ($Project) {
+            $newItem.Project = $Project
+        }
+        if ($File) {
+            Export-TodoTxtFile $newItem -File $File -Append | Out-Null
+        }
+        $newItem
     }
 
     End {
