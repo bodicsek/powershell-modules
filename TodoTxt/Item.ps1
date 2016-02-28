@@ -76,3 +76,51 @@ function New-TodoTxtItem {
     End {
     }
 }
+
+<#
+.SYNOPSIS
+    Removes a todo.txt item.
+.DESCRIPTION
+    Removes the todo.txt item from the given File that has the given Id.
+    Ids are assigned based on the ordes of the items in File.
+.EXAMPLE
+    Remove-TodoTxtItem 1
+.EXAMPLE
+    Remove-TodoTxtItem -Id 1
+#>
+function Remove-TodoTxtItem {
+    [CmdletBinding()]
+    Param(
+        # The Id of the todo.txt item.
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [int]
+        $Id,
+
+        # The todo.txt file.
+        [Parameter(Mandatory=$false,
+                   ValueFromPipelineByPropertyName=$true)]
+        [string]
+        $File = $script:File
+    )
+
+    Begin {
+    }
+
+    Process {
+        Try {
+            $oldItems = Import-TodoTxtFile -File $File -ErrorAction Stop
+            $itemToBeDeleted = $oldItems | where {$_.Id -eq $Id}
+            $newItems = $oldItems | where {$_.Id -ne $Id}
+            Export-TodoTxtFile $newItems -File $File -ErrorAction Stop
+            $itemToBeDeleted
+        }
+        Catch {
+
+        }
+    }
+
+    End {
+    }
+}

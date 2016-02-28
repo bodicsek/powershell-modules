@@ -87,3 +87,61 @@ Describe "New-TodoTxtItem" {
         }
     }
 }
+
+Describe "Remove-TodoTxtItem" {
+    In $TestDrive {
+
+        $TestFile = ".\todo.txt"
+
+        Context "when there is no explicit or implicit File parameter" {
+            It "throws an exception" {
+                Remove-TodoTxtItem -Id 2 | Should Throw
+            }
+        }
+
+        Context "when the given Id is not valid" {
+            It "the File remains as is" {
+                Set-Content $TestFile -Value "(A) item one"
+                Add-Content $TestFile -Value "(B) item two"
+                Add-Content $TestFile -Value "(C) item three"
+
+                Remove-TodoTxtItem -Id 4 -File $TestFile
+
+                $TestFile | Should Contain "\(A\) item one"
+                $TestFile | Should Contain "\(B\) item two"
+                $TestFile | Should Contain "\(C\) item three"
+            }
+        }
+
+        Context "when the given Id is valid" {
+            It "removes the appropriate line from the given file" {
+                Set-Content $TestFile -Value "(A) item one"
+
+                Remove-TodoTxtItem -Id 1 -File $TestFile
+
+                $TestFile | Should Not Contain "\(A\) item one"
+            }
+        }
+
+    }
+}
+
+Describe "Done-TodoTxtItem" {
+    In $TestDrive {
+        Context "when there is neither explicit nor implecit File parameter" {
+            It "throws an exception" {
+
+            }
+        }
+        Context "when the given Id is invalid" {
+            It "leaves the File as is an nothing is archived" {
+
+            }
+        }
+        Context "when the given ID is valid" {
+            It "removes the item from File and add an archive entry to FilePath\done.txt" {
+
+            }
+        }
+    }
+}

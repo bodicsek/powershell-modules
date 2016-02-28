@@ -9,7 +9,7 @@ Describe "Import-TodoTxtFile" {
         $nonexistentPath = ".\todo.txt"
 
         It "should throw" {
-            Import-TodoTxtFile $nonexistentPath | Should Throw
+            { Import-TodoTxtFile $nonexistentPath } | Should Throw
         }
     }
 

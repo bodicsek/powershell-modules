@@ -31,7 +31,7 @@ function Import-TodoTxtFile
     }
     Process
     {
-        $lines = Get-Content $File | where Length -gt 0
+        $lines = Get-Content $File -ErrorAction Stop | where Length -gt 0
         for ($i = 0; $i -lt $lines.Length; $i++)
         {
             Import-TodoTxtItem $lines[$i] |

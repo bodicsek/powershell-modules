@@ -16,4 +16,5 @@ Pop-Location
 
 Export-ModuleMember -Function @(
     'New-TodoTxtItem',
+    'Remove-TodoTxtItem',
     'Show-TodoTxt')
