@@ -100,9 +100,19 @@ Describe "Export-TodoTxtItem" {
 
             $lineToWrite = Export-TodoTxtItem $todoItem
 
-            $lineToWrite | Should Be "(A) test item"
+            $lineToWrite | Should BeExactly "(A) test item"
         }
 
+        It "returns '(Priority) Text' even if the original Text has '(Priority)'" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "(A) test item";
+                Priority = [Priority]::A;
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem
+
+            $lineToWrite | Should BeExactly "(A) test item"
+        }
     }
 
     Context "when Priority and CreationDate are present" {
@@ -119,6 +129,17 @@ Describe "Export-TodoTxtItem" {
             $lineToWrite | Should Be "(A) 2016-01-01 test item"
         }
 
+        It "returns '(Priority) CreationDate Text' even if the original Text contains '(Priority) CreationDate'" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "(A) 2016-01-01 test item";
+                Priority = [Priority]::B;
+                CreationDate = [datetime]"2016-01-02";
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem
+
+            $lineToWrite | Should Be "(B) 2016-01-02 test item"
+        }
     }
 
     Context "when the -Archive parameter is present" {
@@ -134,6 +155,19 @@ Describe "Export-TodoTxtItem" {
             $lineToWrite = Export-TodoTxtItem $todoItem -Archive
 
             $lineToWrite | Should Be "x $today (A) 2016-01-01 test item"
+        }
+
+        It "return 'x DateTime.Now (Priority) CreationDate Text' even if the original Text contains '(Priority) CreationDate'" {
+            $today = "{0:yyyy-MM-dd}" -f [datetime]::Now
+            $todoItem = New-Object psobject -Property @{
+                Text = "(A) 2016-01-01 test item";
+                Priority = [Priority]::B;
+                CreationDate = [datetime]"2016-01-02";
+            }
+
+            $lineToWrite = Export-TodoTxtItem $todoItem -Archive
+
+            $lineToWrite | Should Be "x $today (B) 2016-01-02 test item"
         }
 
     }

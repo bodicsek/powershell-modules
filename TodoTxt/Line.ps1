@@ -58,8 +58,7 @@ function Import-TodoTxtItem
 {
     [CmdletBinding()]
     [OutputType([psobject])]
-    Param
-    (
+    Param (
         # A valid Todo.txt line (https://github.com/ginatrapani/todo.txt-cli/wiki/The-Todo.txt-Format).
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
@@ -68,64 +67,47 @@ function Import-TodoTxtItem
         $Line
     )
 
-    Begin
-    {
-        function ParseTodoTxtItemPriority ($line)
-        {
+    Begin {
+        function ParseTodoTxtItemPriority ($line) {
             $stringValue = GetAllRegexCaptureOccurances '^\(([A-Z])\)' $line | select -First 1
-            if ($stringValue)
-            {
+            if ($stringValue) {
                 [System.Enum]::Parse([type]"Priority", $stringValue)
-            }
-            else
-            {
+            } else {
                 [Priority]::Undefined
             }
         }
 
-        function ParseTodoTxtItemCreationDate ($line)
-        {
+        function ParseTodoTxtItemCreationDate ($line) {
             $creationDateAtStart = GetAllRegexCaptureOccurances '^(\d{4}-\d{2}-\d{2})' $line | select -First 1
-            if ($creationDateAtStart)
-            {
+            if ($creationDateAtStart) {
                 [DateTime]$creationDateAtStart
-            }
-            else
-            {
+            } else {
                 $creationDateAfterPrio = GetAllRegexCaptureOccurances '^\([A-Z]\) (\d{4}-\d{2}-\d{2})' $line | select -First 1
-                if ($creationDateAfterPrio)
-                {
+                if ($creationDateAfterPrio) {
                     [DateTime]$creationDateAfterPrio
-                }
-                else
-                {
+                } else {
                     $null
                 }
             }
         }
 
-        function ParseTodoTxtItemContext ($line)
-        {
+        function ParseTodoTxtItemContext ($line) {
             GetAllRegexCaptureOccurances '@(\S+)' $line
         }
 
-        function ParseTodoTxtItemProject ($line)
-        {
+        function ParseTodoTxtItemProject ($line) {
             GetAllRegexCaptureOccurances '\+(\S+)' $line
         }
 
-        function GetAllRegexCaptureOccurances($regexWithCapture, $line)
-        {
+        function GetAllRegexCaptureOccurances($regexWithCapture, $line) {
             $matches = Select-String $regexWithCapture -InputObject $line -AllMatches |
                     select -ExpandProperty Matches
-            foreach ($match in $matches)
-            {
+            foreach ($match in $matches) {
                 $match.Groups[1].Value
             }
         }
     }
-    Process
-    {
+    Process {
         New-Object psobject -Property @{
             Text = $Line;
             Priority = ParseTodoTxtItemPriority $Line;
@@ -134,8 +116,8 @@ function Import-TodoTxtItem
             Project = ParseTodoTxtItemProject $Line;
         }
     }
-    End
-    {}
+    End {
+    }
 }
 
 <#
@@ -161,8 +143,7 @@ function Export-TodoTxtItem
 {
     [CmdletBinding()]
     [OutputType([string])]
-    Param
-    (
+    Param (
         # A todo item object.
         [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true,
@@ -176,37 +157,34 @@ function Export-TodoTxtItem
         $Archive
     )
 
-    Begin
-    {
+    Begin {
+        function RemoveExistingProperties ($text) {
+            $newText = $($text -replace '^\([A-Z]\)', '').Trim()
+            $($newText -replace '^\d\d\d\d-\d\d-\d\d', '').Trim()
+        }
     }
     Process
     {
         $todoTxtLine = ""
-        if ($Object.Priority -ne $null -and $Object.Priority -ne [Priority]::Undefined)
-        {
+        if ($Object.Priority -ne $null -and $Object.Priority -ne [Priority]::Undefined) {
             $todoTxtLine += "(" + $Object.Priority + ") "
         }
-        if ($Object.CreationDate -ne $null)
-        {
+        if ($Object.CreationDate -ne $null) {
             $todoTxtLine += "{0:yyyy-MM-dd} " -f $Object.CreationDate
         }
-        if ($Object.Text -ne $null)
-        {
-            $todoTxtLine += $Object.Text
+        if ($Object.Text -ne $null) {
+            $todoTxtLine += RemoveExistingProperties $Object.Text
         }
 
-        if ($todoTxtLine -ne "")
-        {
-            if ($Archive.IsPresent)
-            {
+        if ($todoTxtLine -ne "") {
+            if ($Archive.IsPresent) {
                 $todoTxtLine = "x " + ("{0:yyyy-MM-dd} " -f [DateTime]::Now) + $todoTxtLine
             }
             return $todoTxtLine
         }
         $null
     }
-    End
-    {
+    End {
     }
 }
 
