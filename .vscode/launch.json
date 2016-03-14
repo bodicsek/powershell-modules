@@ -2,10 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PowerShell",
+            "name": "PS file",
             "type": "PowerShell",
             "request": "launch",
             "program": "${file}"
+        },
+        {
+            "name": "PS test file",
+            "type": "PowerShell",
+            "request": "launch",
+            "program": "Invoke-Pester -Script ${file}"
         }
     ]
 }
