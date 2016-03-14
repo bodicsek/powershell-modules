@@ -14,8 +14,7 @@
 .EXAMPLE
     Import-TodoTxtFile -File todo.txt
 #>
-function Import-TodoTxtFile
-{
+function Import-TodoTxtFile {
     [CmdletBinding()]
     Param
     (
@@ -26,20 +25,16 @@ function Import-TodoTxtFile
         $File
     )
 
-    Begin
-    {
+    Begin {
     }
-    Process
-    {
-        $lines = Get-Content $File -ErrorAction Stop | where Length -gt 0
-        for ($i = 0; $i -lt $lines.Length; $i++)
-        {
+    Process {
+        $lines = @(Get-Content $File -ErrorAction Stop | where Length -gt 0)
+        for ($i = 0; $i -lt $lines.Length; $i++) {
             Import-TodoTxtItem $lines[$i] |
             Add-Member -NotePropertyName Id -NotePropertyValue $i -PassThru
         }
     }
-    End
-    {
+    End {
     }
 }
 
@@ -59,17 +54,16 @@ function Import-TodoTxtFile
     Export-TodoTxtFile -Object @{Text="my todo item";} -File .\todo.txt -Append
     The todo.txt line that represents the item is appended to todo.txt file.
 #>
-function Export-TodoTxtFile
-{
+function Export-TodoTxtFile {
     [CmdletBinding()]
     Param
     (
         # The todo items that should be written to a file.
-        [Parameter(Mandatory=$true,
+        [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [psobject[]]
-        $Object,
+        $Objects,
 
         # The destination file of the export.
         [Parameter(Mandatory=$true,
@@ -84,25 +78,23 @@ function Export-TodoTxtFile
         $Append
     )
 
-    Begin
-    {
+    Begin {
     }
-    Process
-    {
-        $lines = $Object | foreach { Export-TodoTxtItem $_ } | where { $_ -ne $null }
-        if ($lines)
-        {
-            if ($Append.IsPresent)
-            {
-                $lines | Out-File $File utf8 -Append
-            }
-            else
-            {
-                $lines | Out-File $File utf8
+    Process {
+        if ($Objects.Length -gt 0) {
+            $lines = $Objects | foreach { Export-TodoTxtItem $_ } | where { $_ -ne $null }
+            if ($lines.Length -gt 0) {
+                if ($Append.IsPresent) {
+                    $lines | Out-File $File utf8 -Append
+                } else {
+                    $lines | Out-File $File utf8
+                }
             }
         }
+        elseif ($(Test-Path $File)) {
+            Set-Content $File ""
+        }
     }
-    End
-    {
+    End {
     }
 }

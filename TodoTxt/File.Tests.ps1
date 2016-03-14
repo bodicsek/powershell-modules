@@ -26,6 +26,20 @@ Describe "Import-TodoTxtFile" {
         }
     }
 
+    Context "when the given file contains a single item" {
+        In $TestDrive {
+
+            $todoTxtFile = ".\todo.txt"
+            Set-Content $todoTxtFile -Value "(A) my only item"
+
+            It "it return a single object" {
+                $todos = Import-TodoTxtFile $todoTxtFile
+
+                ($todos | measure | select -ExpandProperty Count) |
+                    Should Be 1
+            }
+        }
+    }
     Context "when the given file contains todo.txt lines" {
         In $TestDrive {
 
@@ -64,7 +78,7 @@ Describe "Export-TodoTxtFile" {
 
         It "creates a new file with one line per todo item object" {
             In $TestDrive {
-                Export-TodoTxtFile -Object @{Text = "test item"},@{Priority=[Priority]::A;Text="important"} -File .\todo.txt
+                Export-TodoTxtFile -Objects @{Text = "test item"},@{Priority=[Priority]::A;Text="important"} -File .\todo.txt
 
                 ".\todo.txt" | Should Exist
                 ".\todo.txt" | Should Contain "test item"
@@ -78,11 +92,12 @@ Describe "Export-TodoTxtFile" {
         In $TestDrive {
 
             $todoTxtFile = ".\todo.txt"
-            Set-Content $todoTxtFile -Value "(A) todo1 @home +hobby"
-            Add-Content $todoTxtFile -Value "(B) 2016-01-01 todo2 @office +projectA"
 
             It "does not change the content of the file if the todo item objects are invalid" {
-                Export-TodoTxtFile @{Name = "test"} -File .\todo.txt
+                Set-Content $todoTxtFile -Value "(A) todo1 @home +hobby"
+                Add-Content $todoTxtFile -Value "(B) 2016-01-01 todo2 @office +projectA"
+
+                Export-TodoTxtFile -Objects @{Name = "test"} -File .\todo.txt
 
                 ".\todo.txt" | Should Not Contain "test"
                 ".\todo.txt" | Should Contain "\(A\) todo1 @home \+hobby"
@@ -90,12 +105,24 @@ Describe "Export-TodoTxtFile" {
             }
 
             It "replaces the content of the file with one line per todo item object" {
-                Export-TodoTxtFile -Object @{Text = "test item"},@{Priority=[Priority]::A;Text="important"} -File .\todo.txt
+                Set-Content $todoTxtFile -Value "(A) todo1 @home +hobby"
+                Add-Content $todoTxtFile -Value "(B) 2016-01-01 todo2 @office +projectA"
+
+                Export-TodoTxtFile -Objects @{Text = "test item"},@{Priority=[Priority]::A;Text="important"} -File .\todo.txt
 
                 ".\todo.txt" | Should Contain "test item"
                 ".\todo.txt" | Should Contain "\(A\) important"
                 ".\todo.txt" | Should Not Contain "\(A\) todo1 @home \+hobby"
                 ".\todo.txt" | Should Not Contain "\(B\) 2016-01-01 todo2 @office \+projectA"
+            }
+
+            It "clears the content of the file when Objects is empty" {
+                Set-Content $todoTxtFile -Value "(A) todo1 @home +hobby"
+                Add-Content $todoTxtFile -Value "(B) 2016-01-01 todo2 @office +projectA"
+
+                Export-TodoTxtFile -Objects @() -File .\todo.txt
+
+                $(Get-Content $todoTxtFile).length | Should Be 0
             }
         }
     }
