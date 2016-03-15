@@ -135,12 +135,12 @@ function Remove-TodoTxtItem {
     Ids are assigned based on the order of the items in File.
     Adds the item to the done.txt file with a mark X and the date of the archival.
 .EXAMPLE
-    Done-TodoTxtItem 1
+    Complete-TodoTxtItem 1
 .EXAMPLE
-    Done-TodoTxtItem -Id 1
+    Complete-TodoTxtItem -Id 1
 #>
-function Done-TodoTxtItem {
-    [Alias("dt")]
+function Complete-TodoTxtItem {
+    [Alias("ct")]
     [CmdletBinding()]
     Param (
         # The Id of the todo.txt item.

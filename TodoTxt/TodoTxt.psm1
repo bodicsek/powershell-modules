@@ -17,14 +17,14 @@ Pop-Location
 Export-ModuleMember -Function @(
     'New-TodoTxtItem',
     'Remove-TodoTxtItem',
-    'Done-TodoTxtItem',
+    'Complete-TodoTxtItem',
     'Show-TodoTxt'
 )
 Export-ModuleMember -Alias @(
-    't',
     'nt',
     'rt',
-    'dt'
+    'ct',
+    't'
 )
 Export-ModuleMember -Variable @(
     'File'

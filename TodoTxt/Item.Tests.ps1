@@ -140,7 +140,7 @@ Describe "Remove-TodoTxtItem" {
     }
 }
 
-Describe "Done-TodoTxtItem" {
+Describe "Complete-TodoTxtItem" {
     In $TestDrive {
 
         $TestFile = ".\todo.txt"
@@ -149,7 +149,7 @@ Describe "Done-TodoTxtItem" {
 
         Context "when there is neither explicit nor implicit File parameter" {
             It "throws an exception" {
-                Done-TodoTxtItem -Id 1 | Should Throw
+                Complete-TodoTxtItem -Id 1 | Should Throw
             }
         }
 
@@ -157,7 +157,7 @@ Describe "Done-TodoTxtItem" {
             It "leaves the File as is and nothing is archived" {
                 Set-Content $TestFile -Value "(A) todo item"
 
-                Done-TodoTxtItem -Id 1 -File $TestFile
+                Complete-TodoTxtItem -Id 1 -File $TestFile
 
                 $TestFile | Should Contain "\(A\) todo item"
             }
@@ -167,7 +167,7 @@ Describe "Done-TodoTxtItem" {
             It "removes the item from File and adds an archive entry to FilePath\done.txt" {
                 Set-Content $TestFile -Value "(A) todo item"
 
-                Done-TodoTxtItem -Id 0 -File $TestFile
+                Complete-TodoTxtItem -Id 0 -File $TestFile
 
                 $TestFile | Should Exist
                 $TestFile | Should Not Contain "^\(A\) todo item"
