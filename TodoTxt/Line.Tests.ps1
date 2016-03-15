@@ -179,8 +179,8 @@ Describe "Export-TodoTxtItem" {
                 Text = "test item";
                 Priority = "C";
                 CreationDate = "2016-01-01";
-                Project = @("+ProjectA");
-                Context = @("@home");
+                Project = @("ProjectA");
+                Context = @("home");
             }
 
             $todoLine = Export-TodoTxtItem $todoItem
@@ -193,8 +193,8 @@ Describe "Export-TodoTxtItem" {
                 Text = "(C) 2016-01-01 test item @home +ProjectA";
                 Priority = "C";
                 CreationDate = "2016-01-01";
-                Project = @("+ProjectA");
-                Context = @("@home");
+                Project = @("ProjectA");
+                Context = @("home");
             }
 
             $todoLine = Export-TodoTxtItem $todoItem

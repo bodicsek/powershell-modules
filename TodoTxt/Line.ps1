@@ -179,12 +179,12 @@ function Export-TodoTxtItem
         }
         if ($Object.Context -ne $null) {
             foreach ($ctx in $Object.Context) {
-                $todoTxtLine += " " + $ctx
+                $todoTxtLine += " @" + $ctx
             }
         }
         if ($Object.Project -ne $null) {
             foreach ($proj in $Object.Project) {
-                $todoTxtLine += " " + $proj
+                $todoTxtLine += " +" + $proj
             }
         }
 
