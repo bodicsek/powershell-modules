@@ -144,7 +144,7 @@ Describe "Export-TodoTxtItem" {
 
     Context "when the -Archive parameter is present" {
 
-        It "return 'x DateTime.Now (Priority) CreationDate Text'" {
+        It "returns 'x DateTime.Now (Priority) CreationDate Text'" {
             $today = "{0:yyyy-MM-dd}" -f [datetime]::Now
             $todoItem = New-Object psobject -Property @{
                 Text = "test item";
@@ -157,7 +157,7 @@ Describe "Export-TodoTxtItem" {
             $lineToWrite | Should Be "x $today (A) 2016-01-01 test item"
         }
 
-        It "return 'x DateTime.Now (Priority) CreationDate Text' even if the original Text contains '(Priority) CreationDate'" {
+        It "returns 'x DateTime.Now (Priority) CreationDate Text' even if the original Text contains '(Priority) CreationDate'" {
             $today = "{0:yyyy-MM-dd}" -f [datetime]::Now
             $todoItem = New-Object psobject -Property @{
                 Text = "(A) 2016-01-01 test item";
@@ -170,5 +170,36 @@ Describe "Export-TodoTxtItem" {
             $lineToWrite | Should Be "x $today (B) 2016-01-02 test item"
         }
 
+    }
+
+    Context "when all parameters are present" {
+
+        It "returns a todo.txt line with all the parameters" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "test item";
+                Priority = "C";
+                CreationDate = "2016-01-01";
+                Project = @("+ProjectA");
+                Context = @("@home");
+            }
+
+            $todoLine = Export-TodoTxtItem $todoItem
+
+            $todoLine | Should BeExactly "(C) 2016-01-01 test item @home +ProjectA"
+        }
+
+        It "returns a todo.txt line with all parameters even if the parameters were in Text property" {
+            $todoItem = New-Object psobject -Property @{
+                Text = "(C) 2016-01-01 test item @home +ProjectA";
+                Priority = "C";
+                CreationDate = "2016-01-01";
+                Project = @("+ProjectA");
+                Context = @("@home");
+            }
+
+            $todoLine = Export-TodoTxtItem $todoItem
+
+            $todoLine | Should BeExactly "(C) 2016-01-01 test item @home +ProjectA"
+        }
     }
 }

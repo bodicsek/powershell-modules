@@ -160,7 +160,9 @@ function Export-TodoTxtItem
     Begin {
         function RemoveExistingProperties ($text) {
             $newText = $($text -replace '^\([A-Z]\)', '').Trim()
-            $($newText -replace '^\d\d\d\d-\d\d-\d\d', '').Trim()
+            $newText = $($newText -replace '^\d\d\d\d-\d\d-\d\d', '').Trim()
+            $newText = $($newText -replace ' @\S+')
+            $($newText -replace ' \+\S+')
         }
     }
     Process
@@ -174,6 +176,16 @@ function Export-TodoTxtItem
         }
         if ($Object.Text -ne $null) {
             $todoTxtLine += RemoveExistingProperties $Object.Text
+        }
+        if ($Object.Context -ne $null) {
+            foreach ($ctx in $Object.Context) {
+                $todoTxtLine += " " + $ctx
+            }
+        }
+        if ($Object.Project -ne $null) {
+            foreach ($proj in $Object.Project) {
+                $todoTxtLine += " " + $proj
+            }
         }
 
         if ($todoTxtLine -ne "") {
