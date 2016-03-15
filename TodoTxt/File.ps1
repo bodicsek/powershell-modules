@@ -75,23 +75,35 @@ function Export-TodoTxtFile {
         [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$false)]
         [switch]
-        $Append
+        $Append,
+
+        # A switch that signs if the items should be exported in archive format and appended to the file.
+        [Parameter(Mandatory=$false,
+                   ValueFromPipelineByPropertyName=$false)]
+        [switch]
+        $Archive
     )
 
     Begin {
+        $isAppendPresent = $Append.IsPresent
+        $exportAction = { Param($Object) Export-TodoTxtItem $Object }
+        if ($Archive.IsPresent) {
+            $isAppendPresent = $true
+            $exportAction = { Param($Object) Export-TodoTxtItem $Object -Archive }
+        }
     }
     Process {
         if ($Objects.Length -gt 0) {
-            $lines = $Objects | foreach { Export-TodoTxtItem $_ } | where { $_ -ne $null }
+            $lines = $Objects | foreach { Invoke-Command $exportAction -ArgumentList $_ } | where { $_ -ne $null }
             if ($lines.Length -gt 0) {
-                if ($Append.IsPresent) {
+                if ($isAppendPresent) {
                     $lines | Out-File $File utf8 -Append
                 } else {
                     $lines | Out-File $File utf8
                 }
             }
         }
-        elseif ($(Test-Path $File)) {
+        elseif ($(Test-Path $File) -and !$isAppendPresent) {
             Set-Content $File ""
         }
     }

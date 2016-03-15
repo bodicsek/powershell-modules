@@ -127,9 +127,18 @@ Describe "Export-TodoTxtFile" {
         }
     }
 
-    Context "when the -Append switch is present"  {
+    Context "when the -Append parameter is present"  {
 
         In $TestDrive {
+
+            It "creates a new file with one line per object" {
+                In $TestDrive {
+                    Export-TodoTxtFile -Objects @{Text="todo item"; Priority=[Priority]::A} -File ".\todo.txt" -Append
+
+                    ".\todo.txt" | Should Exist
+                    ".\todo.txt" | Should Contain "\(A\) todo item"
+                }
+            }
 
             $todoTxtFile = ".\todo.txt"
             Set-Content $todoTxtFile -Value "(A) todo1 @home +hobby"
@@ -149,6 +158,42 @@ Describe "Export-TodoTxtFile" {
                 ".\todo.txt" | Should Contain "test"
                 ".\todo.txt" | Should Contain "\(A\) todo1 @home \+hobby"
                 ".\todo.txt" | Should Contain "\(B\) 2016-01-01 todo2 @office \+projectA"
+            }
+        }
+    }
+
+    Context "when the -Archive parameter is present" {
+
+        $archiveTodoTxt = ".\done.txt"
+
+        It "creates a new file with one line in archive format per object" {
+            In $TestDrive {
+                Export-TodoTxtFile -Objects @{Text="item one";Priority=[Priority]::A}, @{Text="item two";Priority=[Priority]::B} -File $archiveTodoTxt -Archive
+
+                $archiveTodoTxt | Should Exist
+                $archiveTodoTxt | Should Contain "^x \d\d\d\d-\d\d-\d\d \(A\) item one"
+                $archiveTodoTxt | Should Contain "^x \d\d\d\d-\d\d-\d\d \(B\) item two"
+            }
+        }
+
+        It "always appends one line per item to the already exisitng file (even if -Append is not present)" {
+            In $TestDrive {
+                Set-Content $archiveTodoTxt -Value "x 2016-01-01 (C) archived item"
+
+                Export-TodoTxtFile -Objects @(@{Text="test item"}) -File $archiveTodoTxt -Archive
+
+                $archiveTodoTxt | Should Contain "^x 2016-01-01 \(C\) archived item"
+                $archiveTodoTxt | Should Contain "^x \d\d\d\d-\d\d-\d\d test item"
+            }
+        }
+
+        It "does not clear the File if there is no Object passed" {
+            In $TestDrive {
+                Set-Content $archiveTodoTxt -Value "x 2016-01-01 test item"
+
+                Export-TodoTxtFile -Objects @() -File $archiveTodoTxt -Archive
+
+                $archiveTodoTxt | Should Contain "^x 2016-01-01 test item"
             }
         }
     }

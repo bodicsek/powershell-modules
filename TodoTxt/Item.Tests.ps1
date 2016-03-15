@@ -2,6 +2,11 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path).Replace(".Tests.", ".")
 . "$here\$sut"
 
+function Write-FileToHost ($header, $fileName) {
+    Write-Host $header
+    Get-Content $fileName -Encoding UTF8 | Out-Host
+}
+
 Describe "New-TodoTxtItem" {
 
     In $TestDrive {
@@ -105,42 +110,69 @@ Describe "Remove-TodoTxtItem" {
                 Add-Content $TestFile -Value "(B) item two"
                 Add-Content $TestFile -Value "(C) item three"
 
-                Remove-TodoTxtItem -Id 4 -File $TestFile
+                Remove-TodoTxtItem -Id 3 -File $TestFile
 
-                $TestFile | Should Contain "\(A\) item one"
-                $TestFile | Should Contain "\(B\) item two"
-                $TestFile | Should Contain "\(C\) item three"
+                $TestFile | Should Contain "^\(A\) item one$"
+                $TestFile | Should Contain "^\(B\) item two$"
+                $TestFile | Should Contain "^\(C\) item three$"
             }
         }
 
         Context "when the given Id is valid" {
             It "removes the appropriate line from the given file" {
                 Set-Content $TestFile -Value "(A) item one"
+                Add-Content $TestFile -Value "(B) item two"
 
                 Remove-TodoTxtItem -Id 1 -File $TestFile
 
-                $TestFile | Should Not Contain "\(A\) item one"
+                $TestFile | Should Contain "^\(A\) item one$"
+                $TestFile | Should Not Contain "\(B\) item two"
+            }
+
+            It "removes the last line from the file" {
+                Set-Content $TestFile -Value "(A) item one"
+
+                Remove-TodoTxtItem -Id 0 -File $TestFile
+
+                $(Get-Content $TestFile).Length | Should Be 0
             }
         }
-
     }
 }
 
 Describe "Done-TodoTxtItem" {
     In $TestDrive {
-        Context "when there is neither explicit nor implecit File parameter" {
+
+        $TestFile = ".\todo.txt"
+        $TestArchiveFile = ".\done.txt"
+        Set-Content $TestArchiveFile -Value ""
+
+        Context "when there is neither explicit nor implicit File parameter" {
             It "throws an exception" {
-
+                Done-TodoTxtItem -Id 1 | Should Throw
             }
         }
+
         Context "when the given Id is invalid" {
-            It "leaves the File as is an nothing is archived" {
+            It "leaves the File as is and nothing is archived" {
+                Set-Content $TestFile -Value "(A) todo item"
 
+                Done-TodoTxtItem -Id 1 -File $TestFile
+
+                $TestFile | Should Contain "\(A\) todo item"
             }
         }
-        Context "when the given ID is valid" {
-            It "removes the item from File and add an archive entry to FilePath\done.txt" {
 
+        Context "when the given ID is valid" {
+            It "removes the item from File and adds an archive entry to FilePath\done.txt" {
+                Set-Content $TestFile -Value "(A) todo item"
+
+                Done-TodoTxtItem -Id 0 -File $TestFile
+
+                $TestFile | Should Exist
+                $TestFile | Should Not Contain "^\(A\) todo item"
+                $TestArchiveFile | Should Exist
+                $TestArchiveFile | Should Contain "^x \d\d\d\d-\d\d-\d\d \(A\) todo item"
             }
         }
     }
