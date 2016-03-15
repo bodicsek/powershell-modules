@@ -19,6 +19,7 @@
     New-TodoTxtItem "(A) My new todo @home @office +ProjectA"
 #>
 function New-TodoTxtItem {
+    [Alias("nt")]
     [CmdletBinding()]
     Param (
         # The todo description. It can be a valid todo.txt line.
@@ -89,6 +90,7 @@ function New-TodoTxtItem {
     Remove-TodoTxtItem -Id 1
 #>
 function Remove-TodoTxtItem {
+    [Alias("rt")]
     [CmdletBinding()]
     Param (
         # The Id of the todo.txt item.
@@ -138,6 +140,7 @@ function Remove-TodoTxtItem {
     Done-TodoTxtItem -Id 1
 #>
 function Done-TodoTxtItem {
+    [Alias("dt")]
     [CmdletBinding()]
     Param (
         # The Id of the todo.txt item.

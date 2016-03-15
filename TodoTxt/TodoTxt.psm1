@@ -1,4 +1,4 @@
-Param(
+Param (
     [parameter(Mandatory=$false,
                Position=0)]
     [string]
@@ -15,10 +15,17 @@ Push-Location $psScriptRoot
 Pop-Location
 
 Export-ModuleMember -Function @(
-        'New-TodoTxtItem',
-        'Remove-TodoTxtItem',
-        'Show-TodoTxt'
-    )
+    'New-TodoTxtItem',
+    'Remove-TodoTxtItem',
+    'Done-TodoTxtItem',
+    'Show-TodoTxt'
+)
+Export-ModuleMember -Alias @(
+    't',
+    'nt',
+    'rt',
+    'dt'
+)
 Export-ModuleMember -Variable @(
-        'File'
-    )
+    'File'
+)

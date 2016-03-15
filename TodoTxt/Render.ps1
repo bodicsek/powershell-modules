@@ -11,11 +11,10 @@
 .EXAMPLE
     Another example of how to use this cmdlet
 #>
-function Show-TodoTxt
-{
+function Show-TodoTxt {
+    [Alias("t")]
     [CmdletBinding()]
-    Param
-    (
+    Param (
         # The full path of the todo.txt file.
         [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$true,
@@ -34,11 +33,9 @@ function Show-TodoTxt
         }
     )
 
-    Begin
-    {
+    Begin {
     }
-    Process
-    {
+    Process {
         Import-TodoTxtFile $File |
         group -Property Priority |
         sort -Property Name |
@@ -46,8 +43,7 @@ function Show-TodoTxt
         % { Write-Host ("{0,2:G} {1}" -f $_.Id, $_.Text) -ForegroundColor $ColorMap.($_.Priority) } |
         Out-Null
     }
-    End
-    {
+    End {
     }
 }
 
